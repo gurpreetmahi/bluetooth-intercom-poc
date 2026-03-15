@@ -84,30 +84,39 @@ python src/test_loopback.py
 ```
 **Expected**: You hear yourself through speakers (5 second test)
 
-#### Step 2: Activate Bluetooth Devices
-Prepare your Bluetooth devices for the intercom:
+#### Step 2: Activate Your Bluetooth Devices 🔑
+**This is the critical step!** Run the guided activation:
 ```bash
-python src/activate_bluetooth.py
+python src/activate_devices_guide.py
 ```
-**This plays test tones** to activate your Bluetooth devices. Select "Activate all devices".
 
-#### Step 3: Run Bluetooth Intercom Test 🎉
-```bash
-python src/bluetooth_intercom_test.py
-```
-**Result**: Audio routes between two Bluetooth devices!
+This interactive script will:
+1. Detect your Bluetooth devices
+2. Guide you step-by-step through Windows Settings
+3. Test each device to confirm it's active
+4. Automatically launch the intercom test
+
+**Follow the on-screen instructions carefully!**
+
+#### Step 3: Bluetooth Intercom Runs Automatically 🎉
+If devices are active, the intercom starts:
 - Speak into Device A → Hear in Device B
 - Speak into Device B → Hear in Device A
 
-### Alternative: Manual Activation
+### Quick Reference Card
 
-If automatic activation doesn't work:
-1. Open Windows Settings → Sound
-2. Select first Bluetooth device
-3. Play test sound
-4. Select second Bluetooth device  
-5. Play test sound
-6. Run `python src/bluetooth_intercom_test.py` immediately
+```bash
+# 1. Verify everything is installed
+python verify_install.py
+
+# 2. Test basic audio (PC mic/speakers)
+python src/test_loopback.py
+
+# 3. Follow guided Bluetooth activation
+python src/activate_devices_guide.py
+
+# 4. The intercom launches automatically!
+```
 
 ### Troubleshooting
 
