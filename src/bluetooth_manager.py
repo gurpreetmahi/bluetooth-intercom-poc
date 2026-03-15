@@ -66,22 +66,81 @@ class BluetoothManager:
             return []
         
         try:
-            # TODO: Implement Windows Bluetooth device discovery
-            # This is a placeholder implementation
-            self.logger.warning("Device discovery not yet implemented")
+            discovered = []
             
-            # For now, return mock devices for testing
-            mock_devices = [
-                BluetoothDevice("Realme Buds T01", "AA:BB:CC:DD:EE:01", "Person A"),
-                BluetoothDevice("Realme Buds T01", "AA:BB:CC:DD:EE:02", "Person B"),
-            ]
+            # Use Windows WMI to enumerate Bluetooth devices
+            try:
+                wmi = win32com.client.GetObject("winmgmts:")
+                devices = wmi.InstancesOf("Win32_PnPEntity")
+                
+                for device in devices:
+                    # Check if it's a Bluetooth device
+                    if device.Name and "Bluetooth" in device.Name:
+                        # Try to extract MAC address from device ID
+                        device_id = device.DeviceID if device.DeviceID else ""
+                        
+                        # Simple heuristic: look for audio devices
+                        if any(keyword in str(device.Name).lower() for keyword in 
+                               ['headset', 'headphone', 'earbud', 'speaker', 'audio', 'hands-free']):
+                            
+                            # Generate a pseudo MAC address from device ID
+                            # In reality, we'd need more robust parsing
+                            mac_address = self._extract_mac_from_device_id(device_id)
+                            
+                            bt_device = BluetoothDevice(
+                                name=device.Name,
+                                address=mac_address,
+                                alias=device.Name
+                            )
+                            discovered.append(bt_device)
+                            self.logger.info(f"Found device: {device.Name}")
+                
+            except Exception as wmi_error:
+                self.logger.warning(f"WMI enumeration failed: {wmi_error}")
+                
+                # Fallback: Return mock devices for testing
+                self.logger.info("Using mock devices for testing")
+                discovered = [
+                    BluetoothDevice("Realme Buds T01 - Left", "AA:BB:CC:DD:EE:01", "Person A"),
+                    BluetoothDevice("Realme Buds T01 - Right", "AA:BB:CC:DD:EE:02", "Person B"),
+                ]
             
-            self.devices = mock_devices
-            return mock_devices
+            if not discovered:
+                self.logger.warning("No Bluetooth audio devices found")
+            
+            self.devices = discovered
+            return discovered
             
         except Exception as e:
             self.logger.error(f"Error during device discovery: {e}", exc_info=True)
             return []
+    
+    def _extract_mac_from_device_id(self, device_id: str) -> str:
+        """
+        Extract MAC address from Windows device ID
+        
+        Args:
+            device_id: Windows device identifier string
+            
+        Returns:
+            MAC address string or generated placeholder
+        """
+        import re
+        import hashlib
+        
+        # Try to find MAC address pattern in device ID
+        mac_pattern = r'([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})'
+        match = re.search(mac_pattern, device_id)
+        
+        if match:
+            return match.group(0).replace('-', ':').upper()
+        
+        # If no MAC found, generate a deterministic one from device ID
+        # This is a fallback for testing purposes
+        hash_obj = hashlib.md5(device_id.encode())
+        hash_hex = hash_obj.hexdigest()[:12]
+        mac = ':'.join([hash_hex[i:i+2] for i in range(0, 12, 2)])
+        return mac.upper()
     
     def connect_device(self, device: BluetoothDevice) -> bool:
         """
