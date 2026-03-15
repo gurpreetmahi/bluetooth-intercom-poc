@@ -61,12 +61,19 @@ git clone https://github.com/gurpreetmahi/bluetooth-intercom-poc.git
 cd bluetooth-intercom-poc
 ```
 
-2. Install dependencies:
+2. **Verify dependencies** (Python 3.8+ required):
 ```bash
-pip install -r requirements.txt
+python verify_install.py
 ```
 
-3. Pair both Bluetooth devices with your PC (Settings → Bluetooth)
+3. **If dependencies are missing**, install them:
+```bash
+pip install pyaudio numpy pywin32 comtypes PyYAML colorama pytest
+```
+
+**Note for Python 3.13 users**: See [INSTALL_PYTHON313.md](INSTALL_PYTHON313.md) for installation tips. System Python is recommended over virtual environments for now.
+
+4. Pair both Bluetooth devices with your PC (Settings → Bluetooth)
 
 ### Step-by-Step Usage
 
