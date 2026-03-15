@@ -1,0 +1,51 @@
+# Bluetooth Intercom Configuration
+
+# Audio Settings
+audio:
+  sample_rate: 16000  # Hz - HFP supports 8000 or 16000
+  channels: 1         # Mono for HFP
+  chunk_size: 1024    # Buffer size in frames
+  format: "int16"     # Audio sample format
+
+# Bluetooth Settings
+bluetooth:
+  discovery_timeout: 10  # seconds
+  connection_timeout: 30 # seconds
+  auto_reconnect: true
+  
+# Device Configuration
+devices:
+  device_a:
+    name: "Realme Buds T01"  # Name pattern to match
+    alias: "Person A"
+  device_b:
+    name: "Realme Buds T01"  # Name pattern to match
+    alias: "Person B"
+
+# PTT (Push-to-Talk) Settings
+ptt:
+  enabled: true
+  key: "space"  # Keyboard key for PTT
+  
+# Always-On Mode
+always_on:
+  enabled: false
+  vox_threshold: 0.02  # Voice activation threshold (0.0 - 1.0)
+  vox_delay: 500       # ms to keep transmitting after voice stops
+
+# Audio Routing
+routing:
+  enable_echo_cancellation: false
+  enable_noise_suppression: false
+  
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "intercom.log"
+  console: true
+
+# GUI Settings
+gui:
+  theme: "default"
+  window_size: "600x400"
+  show_audio_meters: true
