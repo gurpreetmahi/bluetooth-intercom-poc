@@ -2,9 +2,50 @@
 
 A proof-of-concept Python application that enables two-way audio communication between two pairs of Bluetooth earbuds (Realme Buds T01) using a PC as a gateway.
 
+## ⚠️ Windows Bluetooth Limitation & Solution
+
+**Windows Bluetooth HFP (Hands-Free Profile) limitation:** One active connection per adapter.
+
+**Your Configuration Status:**
+- ✅ You have **2 separate Bluetooth adapters** (verified by diagnostics)
+- ✅ Devices are on **different adapters** 
+- ✅ Dual-device operation **is possible**
+
+**Current Issue:**
+- Devices are paired but not in **active audio state**
+- Windows keeps Bluetooth in standby until audio is triggered
+- Need to "wake up" devices before PyAudio can stream
+
+**Solutions:**
+
+### Option 1: Use Multiple USB Bluetooth Adapters (BEST) ✅
+If you only have one adapter, buy:
+- 2x USB Bluetooth dongles (~$10-15 each)
+- Recommended: TP-Link UB400, Plugable USB-BT4LE, ASUS USB-BT500
+- See [DUAL_ADAPTER_SOLUTION.md](DUAL_ADAPTER_SOLUTION.md) for complete setup guide
+
+**How it works:** Each USB dongle = separate driver instance = separate SCO audio channel
+
+### Option 2: Hybrid Mode (PC + Bluetooth)
+- ✅ Works with single Bluetooth adapter
+- One person uses PC mic/speakers
+- Other person uses Bluetooth earbuds
+- Test script: `src/test_pc_audio.py`
+
+### Option 3: Linux PC
+- Linux BlueZ stack supports multiple HFP connections natively
+- Same Python code should work
+
+### Option 4: ESP32 Gateway (Original Vision)
+- ESP32 can handle 2+ simultaneous Bluetooth connections
+- Portable, battery-powered
+- Requires embedded programming
+
+See [WINDOWS_LIMITATION.md](WINDOWS_LIMITATION.md) for detailed technical explanation.
+
 ## Overview
 
-This project turns your PC into a Bluetooth audio gateway, routing microphone audio from one pair of earbuds to another, creating an intercom/walkie-talkie system without needing smartphones.
+This project demonstrates Bluetooth audio routing. Due to Windows limitations, it currently works as a hybrid system with one Bluetooth device and PC audio.
 
 ## Features
 
@@ -50,8 +91,8 @@ pip install -r requirements.txt
 ### Prerequisites
 - Windows 10/11 with Bluetooth
 - Python 3.8+
-- 2x Bluetooth earbuds (Realme Buds T01 or any Bluetooth headsets)
-- Both devices paired in Windows
+- 1x Bluetooth earbuds (Realme Buds T01 or any Bluetooth headset)
+- Device paired in Windows
 
 ### Installation
 
@@ -73,9 +114,24 @@ pip install pyaudio numpy pywin32 comtypes PyYAML colorama pytest
 
 **Note for Python 3.13 users**: See [INSTALL_PYTHON313.md](INSTALL_PYTHON313.md) for installation tips. System Python is recommended over virtual environments for now.
 
-4. Pair both Bluetooth devices with your PC (Settings → Bluetooth)
+4. Pair Bluetooth device with your PC (Settings → Bluetooth)
 
 ### Step-by-Step Usage
+
+#### Step 0: Check Your Bluetooth Configuration 🔍 NEW!
+Run the diagnostic to check if dual-device operation is possible:
+```bash
+python src/check_bt_config.py
+```
+
+**This will tell you:**
+- How many Bluetooth adapters you have
+- Which devices are on which adapter
+- Whether dual-device operation will work
+- What hardware you need to buy (if any)
+
+**If diagnostic shows ✅ READY:** Continue to Step 1
+**If diagnostic shows ❌ NOT READY:** See [DUAL_ADAPTER_SOLUTION.md](DUAL_ADAPTER_SOLUTION.md)
 
 #### Step 1: Test Basic Audio Routing ✅
 Verify the routing logic works with your PC audio:
@@ -84,35 +140,40 @@ python src/test_loopback.py
 ```
 **Expected**: You hear yourself through speakers (5 second test)
 
-#### Step 2: Activate Your Bluetooth Devices 🔑
-**This is the critical step!** Windows Bluetooth requires special handling:
-
-**OPTION A - Automatic (Recommended):**
+#### Step 2: Activate Bluetooth Devices 📡
+Devices need to be in active audio state before streaming:
 ```bash
-python src/activate_and_hold.py
+python src/activate_bt_devices.py
 ```
-This script will:
-1. Find your Bluetooth devices
-2. Open audio streams to both devices
-3. Play test tones to confirm they work
-4. **Hold the streams open** (keep this window open!)
 
-Then in a **NEW terminal window**:
+**This script will:**
+1. Guide you through manually triggering Windows to activate each device
+2. Open audio streams to keep devices active
+3. Hold streams open for testing
+
+**Keep this terminal window open!**
+
+#### Step 3: Test Dual Bluetooth Intercom (if you have 2 adapters)
+In a **NEW terminal window** (keep Step 2 running):
 ```bash
 python src/bluetooth_intercom_test.py
 ```
 
-**OPTION B - Manual Activation:**
-If automatic fails, use the step-by-step guide:
+**If you only have 1 adapter, use hybrid mode:**
 ```bash
-python src/activate_devices_guide.py
+python src/test_hybrid_intercom.py
 ```
 
-#### Step 3: Test the Intercom 🎉
-With devices active, the intercom will:
-- Route audio: Device A mic → Device B speaker
-- Route audio: Device B mic → Device A speaker
-- Create bidirectional voice communication!
+**What hybrid mode does:**
+- Person A uses: PC microphone + speakers
+- Person B uses: Bluetooth earbuds
+- Routes audio bidirectionally between them
+
+#### Step 4: Understanding the Limitation ⚠️
+Read [WINDOWS_LIMITATION.md](WINDOWS_LIMITATION.md) to understand:
+- Why dual Bluetooth needs multiple adapters on Windows
+- Technical details about `bthmodem.sys` and SCO channels
+- Alternative approaches (ESP32, Linux, etc.)
 
 ### Quick Reference Card
 
@@ -123,11 +184,11 @@ python verify_install.py
 # 2. Test basic audio (PC mic/speakers)  
 python src/test_loopback.py
 
-# 3. Activate Bluetooth devices (keep window open!)
-python src/activate_and_hold.py
+# 3. Test hybrid intercom (PC ←→ Bluetooth) - THIS WORKS!
+python src/test_hybrid_intercom.py
 
-# 4. In NEW terminal: Run intercom test
-python src/bluetooth_intercom_test.py
+# 4. Read about Windows limitation
+# See WINDOWS_LIMITATION.md for why dual Bluetooth fails
 ```
 
 ### Troubleshooting

@@ -7,6 +7,7 @@ import pyaudio
 import time
 import sys
 import re
+from adapter_detector import check_devices_on_different_adapters, list_bluetooth_adapters
 
 
 CHUNK = 1024
@@ -134,6 +135,43 @@ def main():
     print("="*70)
     print(f"\n  Device A: {device_a['friendly_name']}")
     print(f"  Device B: {device_b['friendly_name']}")
+    
+    # Check if devices are on different adapters
+    adapters_different = check_devices_on_different_adapters(
+        device_a['full_name'], 
+        device_b['full_name']
+    )
+    
+    if adapters_different is False:
+        print("\n" + "="*70)
+        print("❌ CRITICAL: BOTH DEVICES ON SAME BLUETOOTH ADAPTER")
+        print("="*70)
+        print("\n⚠️  Windows Bluetooth stack limitation:")
+        print("   • Only ONE HFP device active per adapter")
+        print("   • Both your devices are using the SAME adapter")
+        print("   • Simultaneous activation will FAIL")
+        print("\n💡 SOLUTION: Use 2 separate USB Bluetooth dongles")
+        print("   • Cost: $10-15 each (TP-Link UB400, Plugable)")
+        print("   • See: DUAL_ADAPTER_SOLUTION.md for full guide")
+        print("\n   Steps:")
+        print("   1. Buy 2x USB Bluetooth adapters")
+        print("   2. Unpair both devices")
+        print("   3. Disable one adapter in Device Manager")
+        print("   4. Pair Device A to first adapter")
+        print("   5. Disable first adapter, enable second")
+        print("   6. Pair Device B to second adapter")
+        print("   7. Enable both adapters")
+        print("   8. Run this script again")
+        print("\n❓ Continue anyway? (Will likely fail) [y/N]: ", end="")
+        
+        response = input().strip().lower()
+        if response != 'y':
+            print("\n👋 Exiting. Install dual adapters and try again!")
+            return 1
+        
+        print("\n⚠️  Proceeding anyway - expect Device B to fail...")
+    elif adapters_different is True:
+        print("\n✅ Devices on different adapters - simultaneous use should work!")
     
     # Initialize PyAudio
     p = pyaudio.PyAudio()
