@@ -50,8 +50,8 @@ pip install -r requirements.txt
 ### Prerequisites
 - Windows 10/11 with Bluetooth
 - Python 3.8+
-- 2x Bluetooth earbuds (Realme Buds T01 or compatible)
-- Both devices paired AND actively connected in Windows
+- 2x Bluetooth earbuds (Realme Buds T01 or any Bluetooth headsets)
+- Both devices paired in Windows
 
 ### Installation
 
@@ -66,42 +66,55 @@ cd bluetooth-intercom-poc
 pip install -r requirements.txt
 ```
 
-3. **Important**: Pair both earbud sets with your PC via Windows Bluetooth settings
+3. Pair both Bluetooth devices with your PC (Settings → Bluetooth)
 
-### Usage
+### Step-by-Step Usage
 
-#### Test Device Detection
+#### Step 1: Test Basic Audio Routing ✅
+Verify the routing logic works with your PC audio:
 ```bash
-python src/cli_test.py
-# Select option 2 to list audio devices
-# Look for "Headset" entries with Bluetooth driver
+python src/test_loopback.py
 ```
+**Expected**: You hear yourself through speakers (5 second test)
 
-#### Simple POC (Recommended for testing)
+#### Step 2: Activate Bluetooth Devices
+Prepare your Bluetooth devices for the intercom:
 ```bash
-python src/simple_poc.py
-# Automatically detects and routes audio between first two Bluetooth devices
+python src/activate_bluetooth.py
 ```
+**This plays test tones** to activate your Bluetooth devices. Select "Activate all devices".
 
-#### GUI Mode
+#### Step 3: Run Bluetooth Intercom Test 🎉
 ```bash
-python src/main.py
-# Full GUI interface with device selection and controls
+python src/bluetooth_intercom_test.py
 ```
+**Result**: Audio routes between two Bluetooth devices!
+- Speak into Device A → Hear in Device B
+- Speak into Device B → Hear in Device A
 
-### Current Status ⚠️
+### Alternative: Manual Activation
 
-**Working:**
-- ✅ Detects all paired Bluetooth audio devices
-- ✅ Lists device capabilities and sample rates
-- ✅ Audio routing logic implemented
+If automatic activation doesn't work:
+1. Open Windows Settings → Sound
+2. Select first Bluetooth device
+3. Play test sound
+4. Select second Bluetooth device  
+5. Play test sound
+6. Run `python src/bluetooth_intercom_test.py` immediately
 
-**Challenges:**
-- ⚠️ Bluetooth devices must be **actively connected** (playing audio) to work
-- ⚠️ Windows limitations on simultaneous Bluetooth audio connections
-- 🔄 Working on device activation methods
+### Troubleshooting
 
-See [PROGRESS.md](PROGRESS.md) for detailed status and findings.
+**"Device NOT available"**
+- Run `python src/activate_bluetooth.py` first
+- Or manually play audio through each device in Windows Sound settings
+- Windows keeps only one Bluetooth device fully active at a time
+
+**"No Bluetooth devices found"**
+- Ensure devices are paired in Windows Bluetooth settings
+- Bluetooth must be enabled
+- Devices should appear in Sound settings
+
+**See [TESTING.md](TESTING.md) for detailed troubleshooting guide**
 
 ## Project Structure
 
