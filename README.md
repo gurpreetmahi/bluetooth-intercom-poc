@@ -45,25 +45,63 @@ pip install -r requirements.txt
 
 3. Pair both earbud sets with your PC via Windows Bluetooth settings
 
-## Usage
+## Quick Start
 
-### Command Line Mode (Testing)
+### Prerequisites
+- Windows 10/11 with Bluetooth
+- Python 3.8+
+- 2x Bluetooth earbuds (Realme Buds T01 or compatible)
+- Both devices paired AND actively connected in Windows
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/gurpreetmahi/bluetooth-intercom-poc.git
+cd bluetooth-intercom-poc
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. **Important**: Pair both earbud sets with your PC via Windows Bluetooth settings
+
+### Usage
+
+#### Test Device Detection
 ```bash
 python src/cli_test.py
+# Select option 2 to list audio devices
+# Look for "Headset" entries with Bluetooth driver
 ```
 
-### GUI Mode
+#### Simple POC (Recommended for testing)
+```bash
+python src/simple_poc.py
+# Automatically detects and routes audio between first two Bluetooth devices
+```
+
+#### GUI Mode
 ```bash
 python src/main.py
+# Full GUI interface with device selection and controls
 ```
 
-### Configuration
+### Current Status ⚠️
 
-Edit `config.yaml` to customize:
-- Audio buffer sizes
-- Sample rates
-- PTT key bindings
-- Device names
+**Working:**
+- ✅ Detects all paired Bluetooth audio devices
+- ✅ Lists device capabilities and sample rates
+- ✅ Audio routing logic implemented
+
+**Challenges:**
+- ⚠️ Bluetooth devices must be **actively connected** (playing audio) to work
+- ⚠️ Windows limitations on simultaneous Bluetooth audio connections
+- 🔄 Working on device activation methods
+
+See [PROGRESS.md](PROGRESS.md) for detailed status and findings.
 
 ## Project Structure
 
