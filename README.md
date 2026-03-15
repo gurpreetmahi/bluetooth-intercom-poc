@@ -85,23 +85,34 @@ python src/test_loopback.py
 **Expected**: You hear yourself through speakers (5 second test)
 
 #### Step 2: Activate Your Bluetooth Devices 🔑
-**This is the critical step!** Run the guided activation:
+**This is the critical step!** Windows Bluetooth requires special handling:
+
+**OPTION A - Automatic (Recommended):**
+```bash
+python src/activate_and_hold.py
+```
+This script will:
+1. Find your Bluetooth devices
+2. Open audio streams to both devices
+3. Play test tones to confirm they work
+4. **Hold the streams open** (keep this window open!)
+
+Then in a **NEW terminal window**:
+```bash
+python src/bluetooth_intercom_test.py
+```
+
+**OPTION B - Manual Activation:**
+If automatic fails, use the step-by-step guide:
 ```bash
 python src/activate_devices_guide.py
 ```
 
-This interactive script will:
-1. Detect your Bluetooth devices
-2. Guide you step-by-step through Windows Settings
-3. Test each device to confirm it's active
-4. Automatically launch the intercom test
-
-**Follow the on-screen instructions carefully!**
-
-#### Step 3: Bluetooth Intercom Runs Automatically 🎉
-If devices are active, the intercom starts:
-- Speak into Device A → Hear in Device B
-- Speak into Device B → Hear in Device A
+#### Step 3: Test the Intercom 🎉
+With devices active, the intercom will:
+- Route audio: Device A mic → Device B speaker
+- Route audio: Device B mic → Device A speaker
+- Create bidirectional voice communication!
 
 ### Quick Reference Card
 
@@ -109,26 +120,35 @@ If devices are active, the intercom starts:
 # 1. Verify everything is installed
 python verify_install.py
 
-# 2. Test basic audio (PC mic/speakers)
+# 2. Test basic audio (PC mic/speakers)  
 python src/test_loopback.py
 
-# 3. Follow guided Bluetooth activation
-python src/activate_devices_guide.py
+# 3. Activate Bluetooth devices (keep window open!)
+python src/activate_and_hold.py
 
-# 4. The intercom launches automatically!
+# 4. In NEW terminal: Run intercom test
+python src/bluetooth_intercom_test.py
 ```
 
 ### Troubleshooting
 
+**"[Errno -9999] Unanticipated host error"**
+- This means device is paired but not active for audio
+- Solution 1: Use `python src/activate_and_hold.py` (keeps streams open)
+- Solution 2: Manually activate in Windows Settings → System → Sound → click device → Test
+- **Important**: Run the intercom test immediately after activation
+
 **"Device NOT available"**
-- Run `python src/activate_bluetooth.py` first
-- Or manually play audio through each device in Windows Sound settings
-- Windows keeps only one Bluetooth device fully active at a time
+- Windows releases Bluetooth audio devices quickly when idle
+- Keep the `activate_and_hold.py` script running in one terminal
+- Run the intercom test in a separate terminal window
+- Both Realme Buds need to be actively playing audio
 
 **"No Bluetooth devices found"**
 - Ensure devices are paired in Windows Bluetooth settings
 - Bluetooth must be enabled
-- Devices should appear in Sound settings
+- Devices should appear in Sound settings as "Headset" devices
+- Check: Settings → Bluetooth & devices
 
 **See [TESTING.md](TESTING.md) for detailed troubleshooting guide**
 
